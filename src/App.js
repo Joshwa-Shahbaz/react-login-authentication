@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
+import {
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  createUserWithEmailAndPassword,
+  signOut,
+} from "firebase/auth";
+
 import "./App.css";
-import fire from "./fire";
+import { auth } from "./firebase";
 import Login from "./login";
 import Hero from "./Hero";
 
@@ -14,9 +21,11 @@ function App() {
 
   const handleLogin = () => {
     clearError();
-    fire
-      .auth()
-      .signInWithEmailAndPassword(email, password)
+
+    signInWithEmailAndPassword(auth, email, password)
+      .then((user) => {
+        console.log("user >>", user);
+      })
       .catch((err) => {
         switch (err.code) {
           case "auth/invalid-email":
@@ -33,28 +42,25 @@ function App() {
 
   const handleSignup = () => {
     clearError();
-    fire
-      .auth()
-      .createUserWithEmailAndPassword(email, password)
-      .catch((err) => {
-        switch (err.code) {
-          case "auth/email-already-in-use":
-          case "auth/invalid-email":
-            setEmailError(err.message);
-            break;
-          case "auth/weak-password":
-            setPasswordError(err.message);
-            break;
-        }
-      });
+    createUserWithEmailAndPassword(auth, email, password).catch((err) => {
+      switch (err.code) {
+        case "auth/email-already-in-use":
+        case "auth/invalid-email":
+          setEmailError(err.message);
+          break;
+        case "auth/weak-password":
+          setPasswordError(err.message);
+          break;
+      }
+    });
   };
 
   const handleLogout = () => {
-    fire.auth().signOut();
+    signOut(auth);
   };
 
   const authListener = () => {
-    fire.auth().onAuthStateChanged((user) => {
+    onAuthStateChanged(auth, (user) => {
       if (user) {
         cleanInput();
         setUser(user);

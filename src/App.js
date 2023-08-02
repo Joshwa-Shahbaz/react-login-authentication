@@ -37,7 +37,6 @@ function App() {
             setPasswordError(err.message);
             break;
           default:
-            // Handle other login errors here if needed
             console.error("Login error:", err);
         }
       });
@@ -59,7 +58,6 @@ function App() {
             setPasswordError(err.message);
             break;
           default:
-            // Handle other signup errors here if needed
             console.error("Signup error:", err);
         }
       });
@@ -67,17 +65,6 @@ function App() {
 
   const handleLogout = () => {
     signOut(auth);
-  };
-
-  const authListener = () => {
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        cleanInput();
-        setUser(user);
-      } else {
-        setUser("");
-      }
-    });
   };
 
   const cleanInput = () => {
@@ -91,8 +78,23 @@ function App() {
   };
 
   useEffect(() => {
+    const authListener = () => {
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          cleanInput();
+          setUser(user);
+        } else {
+          setUser("");
+        }
+      });
+    };
+
     authListener();
-  }, [authListener]);
+
+    return () => {
+      onAuthStateChanged(auth, () => {});
+    };
+  }, []);
 
   return (
     <div className="App">

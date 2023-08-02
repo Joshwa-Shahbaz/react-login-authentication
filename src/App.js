@@ -36,23 +36,33 @@ function App() {
           case "auth/wrong-password":
             setPasswordError(err.message);
             break;
+          default:
+            // Handle other login errors here if needed
+            console.error("Login error:", err);
         }
       });
   };
 
   const handleSignup = () => {
     clearError();
-    createUserWithEmailAndPassword(auth, email, password).catch((err) => {
-      switch (err.code) {
-        case "auth/email-already-in-use":
-        case "auth/invalid-email":
-          setEmailError(err.message);
-          break;
-        case "auth/weak-password":
-          setPasswordError(err.message);
-          break;
-      }
-    });
+    createUserWithEmailAndPassword(auth, email, password)
+      .then((user) => {
+        console.log("New user registered >>", user);
+      })
+      .catch((err) => {
+        switch (err.code) {
+          case "auth/email-already-in-use":
+          case "auth/invalid-email":
+            setEmailError(err.message);
+            break;
+          case "auth/weak-password":
+            setPasswordError(err.message);
+            break;
+          default:
+            // Handle other signup errors here if needed
+            console.error("Signup error:", err);
+        }
+      });
   };
 
   const handleLogout = () => {
@@ -82,7 +92,7 @@ function App() {
 
   useEffect(() => {
     authListener();
-  }, []);
+  }, [authListener]);
 
   return (
     <div className="App">
